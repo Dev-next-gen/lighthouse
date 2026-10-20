@@ -113,6 +113,27 @@ describe('Page uses optimized responses', () => {
     assert.strictEqual(Math.round(item.wastedPercent), 99);
   });
 
+  it('gives the same result for CRLF and LF line endings', () => {
+    const content = `
+      function escapeQuotes(str) {
+        return str.replace(
+          /'/g, "\\\\'");
+      }
+      // ${'a++;'.repeat(2000)}
+    `;
+    const responseHeaders = [{name: 'Content-Encoding', value: 'gzip'}];
+    const records = [{url: 'foo.js', transferSize: 20 * KB, resourceType, responseHeaders}];
+    const results = [content, content.replace(/\n/g, '\r\n')].map(content => {
+      const auditResult = UnminifiedJavascriptAudit.audit_({
+        URL: {finalDisplayedUrl: 'https://www.example.com'},
+        Scripts: [{scriptId: '123.1', url: 'foo.js', content}].map(createScript),
+      }, records);
+      return auditResult.items.map(item => Math.round(item.wastedPercent));
+    });
+
+    expect(results).toEqual([[99], [99]]);
+  });
+
   it('passes when scripts are already minified', () => {
     const auditResult = UnminifiedJavascriptAudit.audit_({
       URL: {finalDisplayedUrl: 'https://www.example.com'},

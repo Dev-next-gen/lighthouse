@@ -20,7 +20,7 @@ function hasPunctuatorBefore(content, startPosition) {
   for (let i = startPosition; i > 0; i--) {
     const char = content[i - 1];
     // Skip over any ending whitespace
-    if (char === ' ' || char === '\n' || char === '\t') continue;
+    if (char === ' ' || char === '\n' || char === '\r' || char === '\t') continue;
 
     // Try to grab at least 6 characters so we can check for `return`
     const sliceStart = Math.max(0, i - 6);
@@ -59,7 +59,7 @@ function computeTokenLength(content, features) {
   for (let i = 0; i < content.length; i++) {
     const char = content[i];
 
-    const isWhitespace = char === ' ' || char === '\n' || char === '\t';
+    const isWhitespace = char === ' ' || char === '\n' || char === '\r' || char === '\t';
     const isAStringOpenChar = char === `'` || char === '"' || char === '`';
 
     if (isInSinglelineComment) {
